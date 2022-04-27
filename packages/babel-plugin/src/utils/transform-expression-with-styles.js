@@ -71,10 +71,14 @@ export let transformExpressionWithStyles = ({
       path.node.arguments.length === 1 &&
       t.isStringLiteral(path.node.arguments[0])
     ) {
-      let cssString = path.node.arguments[0].value.replace(/;$/, '')
+      const originalCssString = path.node.arguments[0].value;
+      // Preserve existing trailing semicolon, if it exists.
+      const labellessFallback = originalCssString.slice(-1) === ';' ? ';' : '';
+      
+      let cssString = originalCssString.replace(/;$/, '')
       let res = serializeStyles([
         `${cssString}${
-          label && autoLabel === 'always' ? `;label:${label};` : ''
+          label && autoLabel === 'always' ? `;label:${label};` : labellessFallback
         }`
       ])
       let prodNode = t.objectExpression([
